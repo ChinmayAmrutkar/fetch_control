@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 calibrate_frames.py
 -------------------
@@ -87,7 +88,7 @@ class FrameCalibrator:
         print("  FRAME CALIBRATOR")
         print("=" * 60)
         print("  Robot body   : {}".format(self.rigid_body_name))
-        print("  Difficulty   : {}".format(self.difficulty if self.difficulty else "(not set — values will be printed only)"))
+        print("  Difficulty   : {}".format(self.difficulty if self.difficulty else "(not set - values will be printed only)"))
         print("  Samples      : {}".format(self.n_samples))
         print("  Cov threshold: {:.3f} m^2  (~{:.0f} cm std dev)".format(
               self.cov_threshold, math.sqrt(self.cov_threshold) * 100))

@@ -11,12 +11,12 @@ CONTROL SCHEMES
 arcade
   Right Stick Vertical   (Axis 4) = Forward / Backward
   Left  Stick Horizontal (Axis 3) = Turn left / right
-  Two independent axes — natural car-style driving.
+  Two independent axes -- natural car-style driving.
 
 tank
   Right Stick Vertical   (Axis 4) = Forward / Backward
   Right Stick Horizontal (Axis 3) = Turn left / right  (same stick, both axes)
-  Single stick controls all motion — push forward to go forward,
+  Single stick controls all motion -- push forward to go forward,
   push left/right to turn, push diagonally to do both simultaneously.
 
 DEADMAN BUTTON
@@ -60,8 +60,8 @@ class JoystickTranslator:
 
         # Axis indices
         # Both modes use Axis 4 (Right Stick Vertical) for forward/backward.
-        # Arcade: turning is Left Stick Horizontal (Axis 3) — separate stick.
-        # Tank:   turning is Right Stick Horizontal (Axis 3) — same stick as fwd/back.
+        # Arcade: turning is Left Stick Horizontal (Axis 3) -- separate stick.
+        # Tank:   turning is Right Stick Horizontal (Axis 3) -- same stick as fwd/back.
         self.axis_fwd_back    = rospy.get_param('~axis_fwd_back',    4)
         self.axis_turn_arcade = rospy.get_param('~axis_turn_arcade', 3)
         self.axis_turn_tank   = rospy.get_param('~axis_turn_tank',   3)
@@ -93,7 +93,7 @@ class JoystickTranslator:
                           self.axis_fwd_back, self.axis_turn_tank)
 
     def joy_callback(self, data):
-        cmd = Twist()  # defaults to all zeros — robot stops if deadman not held
+        cmd = Twist()  # defaults to all zeros -- robot stops if deadman not held
 
         if data.buttons[self.deadman_button] == 1:
 
@@ -109,7 +109,7 @@ class JoystickTranslator:
                 # Right Stick Horizontal: negate so stick-left = positive angular.z (turn left)
                 cmd.angular.z = -data.axes[self.axis_turn_tank]  * self.scale_angular
 
-        # If deadman not held, cmd stays at zero — immediate stop
+        # If deadman not held, cmd stays at zero -- immediate stop
         self.pub.publish(cmd)
 
 

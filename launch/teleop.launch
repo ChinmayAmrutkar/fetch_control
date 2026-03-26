@@ -1,6 +1,6 @@
 <launch>
   <!-- ============================================================
-       teleop.launch — Control-only pipeline for Fetch HRI experiments
+       teleop.launch Control-only pipeline for Fetch HRI experiments
 
        Camera is intentionally ABSENT from this file.
        Run the camera system on a separate machine with its own delay.
@@ -11,7 +11,7 @@
          control_scheme  arcade | tank          (default: arcade)
 
        CONTROL SCHEMES
-       ---------------
+       
        arcade  Right Stick Vertical   (Axis 4) = Forward / Backward
                Left  Stick Horizontal (Axis 3) = Turn left / right
 
@@ -20,7 +20,7 @@
                (single stick controls all motion)
 
        DEADMAN
-       -------
+       
        LB = Button 4 must be held for any motion in both modes.
        ============================================================ -->
 
@@ -43,7 +43,7 @@
   <!-- Option B: Joystick (ONN / Xbox controller) -->
   <group if="$(eval arg('input_device') == 'joystick')">
 
-    <!-- joy driver — remapped to /my_joy to avoid conflict with Fetch internal driver -->
+    <!-- joy driver remapped to /my_joy to avoid conflict with Fetch internal driver -->
     <node pkg="joy" type="joy_node" name="joy_driver">
       <param name="dev"             value="/dev/input/js0" />
       <param name="deadzone"        value="0.1" />
@@ -58,7 +58,7 @@
       <!-- Axis layout (ONN/Xbox controller)
            Axis 3 = Left  Stick Horizontal  (arcade: turn)
            Axis 4 = Right Stick Vertical    (both modes: fwd/back)
-           Axis 3 = Right Stick Horizontal  (tank: turn — same index as left horiz
+           Axis 3 = Right Stick Horizontal  (tank: turn same index as left horiz
                                              because on this controller layout they
                                              share axis 3; confirm with jstest if needed) -->
       <param name="axis_fwd_back"    value="4" />   <!-- Right Stick Vertical -->
@@ -94,7 +94,7 @@
 
   <!-- ============================================================
        SAFETY CONTROLLER
-       Real-time LIDAR guard — NOT subject to delay.
+       Real-time LIDAR guard NOT subject to delay.
        ============================================================ -->
   <node pkg="fetch_control" type="safety_controller_twist.py"
         name="safety_twist" output="screen" />

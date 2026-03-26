@@ -5,7 +5,7 @@ run_trial.py
 ------------
 Experiment setup wizard for Fetch HRI teleoperation trials.
 
-This is the single entry point for running any trial — training or experiment.
+This is the single entry point for running any trial -- training or experiment.
 
 WORKFLOW
 --------
@@ -104,8 +104,8 @@ def check_calibration(difficulty):
 
 def ask_control_scheme():
     print("\nControl scheme:")
-    print("  [1] ARCADE  — Right Stick: forward/back   |  Left Stick: turn")
-    print("  [2] TANK    — Right Stick: all directions  (single stick)")
+    print("  [1] ARCADE  -- Right Stick: forward/back   |  Left Stick: turn")
+    print("  [2] TANK    -- Right Stick: all directions  (single stick)")
     while True:
         choice = input_fn("  Select [1/2]: ").strip()
         if choice == "1":
@@ -235,8 +235,8 @@ def main():
     # 2. Session type
     # ------------------------------------------------------------------
     print("\nSession type:")
-    print("  [1] Training  — figure-8, no delay, no goal supervisor")
-    print("  [2] Experiment trial  — Easy / Med / Hard with delay")
+    print("  [1] Training  -- figure-8, no delay, no goal supervisor")
+    print("  [2] Experiment trial  -- Easy / Med / Hard with delay")
     while True:
         session = input_fn("  Select [1/2]: ").strip()
         if session in ("1", "2"):
