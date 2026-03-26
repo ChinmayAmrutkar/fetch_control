@@ -1,0 +1,70 @@
+<launch>
+  <!-- ============================================================
+       localization.launch — AMCL + MoCap + Experiment Logger
+       
+       Runs independently of the camera and teleop systems.
+       
+       Args:
+         map_file      Full path to the .yaml map file
+         mocap_ip      IP address of the OptiTrack PC (default: 192.168.0.127)
+         rigid_body    Name of the Fetch rigid body in Motive (default: Fetch8)
+         log_prefix    Filename prefix for CSV logs (set by run_trial.py)
+         tf_x          World→map static transform x offset  (from calibrate_frames.py)
+         tf_y          World→map static transform y offset
+         tf_z          World→map static transform z offset
+         tf_yaw        World→map static transform yaw offset
+       ============================================================ -->
+
+  <arg name="map_file"    default="/home/fetchuser/chinmay/fetch_control_ws/my_maps/lab_map_med.yaml" />
+  <arg name="mocap_ip"    default="192.168.0.127" />
+  <arg name="rigid_body"  default="Fetch8" />
+  <arg name="log_prefix"  default="TRIAL_DEFAULT" />
+
+  <!-- Calibration offsets — update with output of calibrate_frames.py -->
+  <arg name="tf_x"   default="0.0" />
+  <arg name="tf_y"   default="0.0" />
+  <arg name="tf_z"   default="0.0" />
+  <arg name="tf_yaw" default="0.0" />
+
+  <!-- ============================================================
+       1. STATIC TRANSFORM  (world → map)
+       Aligns the AMCL map frame with the OptiTrack world frame.
+       ============================================================ -->
+  <node pkg="tf" type="static_transform_publisher"
+        name="world_to_map_broadcaster"
+        args="$(arg tf_x) $(arg tf_y) $(arg tf_z) $(arg tf_yaw) 0 0 world map 100" />
+
+  <!-- ============================================================
+       2. AMCL + NAVIGATION
+       ============================================================ -->
+  <include file="$(find fetch_navigation)/launch/fetch_nav.launch">
+    <arg name="map_file" value="$(arg map_file)" />
+  </include>
+
+  <!-- ============================================================
+       3. OPTITRACK VRPN CLIENT
+       ============================================================ -->
+  <node pkg="vrpn_client_ros" type="vrpn_client_node"
+        name="vrpn_client_node" output="screen">
+    <rosparam subst_value="true">
+      server:                   $(arg mocap_ip)
+      port:                     3883
+      update_frequency:         100.0
+      frame_id:                 world
+      use_server_time:          false
+      broadcast_tf:             true
+      refresh_tracker_frequency: 1.0
+    </rosparam>
+  </node>
+
+  <!-- ============================================================
+       4. EXPERIMENT LOGGER  (records all 4 CSV files)
+       ============================================================ -->
+  <node pkg="fetch_control" type="experiment_logger.py"
+        name="experiment_logger" output="screen">
+    <param name="max_time"        value="120.0" />
+    <param name="rigid_body_name" value="$(arg rigid_body)" />
+    <param name="log_prefix"      value="$(arg log_prefix)" />
+  </node>
+
+</launch>

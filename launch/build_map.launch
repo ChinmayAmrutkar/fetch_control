@@ -1,0 +1,16 @@
+<launch>
+  <!-- ============================================================
+       build_map.launch — GMapping SLAM for lab map creation
+       
+       Workflow:
+         1. roslaunch fetch_control build_map.launch
+         2. Drive the robot around the ENTIRE lab with the joystick.
+         3. When the map looks complete in RViz, run:
+              rosrun fetch_control save_map.py
+         4. Run calibrate_frames.py to get tf_x / tf_y / tf_yaw.
+         5. Paste those values into MAP_DATABASE in run_trial.py.
+       ============================================================ -->
+
+  <include file="$(find fetch_navigation)/launch/build_map.launch" />
+
+</launch>
