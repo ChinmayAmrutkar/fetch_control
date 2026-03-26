@@ -37,7 +37,7 @@ DIFFICULTY_MAP = {
     "4": ("HARD",  "lab_map_hard"),
 }
 
-MAP_DIR = os.path.expanduser("~/fetch_control_ws/my_maps")
+MAP_DIR = os.path.expanduser("~/chinmay/fetch_control_ws/my_maps")
 
 
 def save_map():
