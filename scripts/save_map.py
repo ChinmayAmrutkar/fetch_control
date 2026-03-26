@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 save_map.py
 -----------
@@ -13,7 +14,7 @@ You will be asked which difficulty this map is for (TRAIN / EASY / MED / HARD).
 The map is saved directly with the correct filename so no renaming is needed:
      lab_map_train.yaml / lab_map_easy.yaml / lab_map_med.yaml / lab_map_hard.yaml
 
-Files are saved to ~/fetch_control_ws/my_maps/
+Files are saved to /home/fetchuser/chinmay/fetch_control_ws/my_maps/
 """
 
 import rospy
@@ -37,7 +38,7 @@ DIFFICULTY_MAP = {
     "4": ("HARD",  "lab_map_hard"),
 }
 
-MAP_DIR = os.path.expanduser("~/chinmay/fetch_control_ws/my_maps")
+MAP_DIR = "/home/fetchuser/chinmay/fetch_control_ws/my_maps"
 
 
 def save_map():

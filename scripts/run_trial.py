@@ -62,7 +62,7 @@ MAP_DATABASE = {
     },
     "MED": {
         "yaml":   "lab_map_med.yaml",
-        "tf_x":   0.0, "tf_y": 0.0, "tf_yaw": 0.0,
+        "tf_x":   2.5927, "tf_y": 0.3872, "tf_yaw": -2.7971,
     },
     "HARD": {
         "yaml":   "lab_map_hard.yaml",

@@ -13,11 +13,10 @@
        CONTROL SCHEMES
        
        arcade  Right Stick Vertical   (Axis 4) = Forward / Backward
-               Left  Stick Horizontal (Axis 3) = Turn left / right
+               Left  Stick Horizontal (Axis 0) = Turn left / right
 
        tank    Right Stick Vertical   (Axis 4) = Forward / Backward
                Right Stick Horizontal (Axis 3) = Turn left / right
-               (single stick controls all motion)
 
        DEADMAN
        
@@ -56,18 +55,16 @@
           name="joystick_translator" output="screen">
 
       <!-- Axis layout (ONN/Xbox controller)
-           Axis 3 = Left  Stick Horizontal  (arcade: turn)
-           Axis 4 = Right Stick Vertical    (both modes: fwd/back)
-           Axis 3 = Right Stick Horizontal  (tank: turn same index as left horiz
-                                             because on this controller layout they
-                                             share axis 3; confirm with jstest if needed) -->
-      <param name="axis_fwd_back"    value="4" />   <!-- Right Stick Vertical -->
-      <param name="axis_turn_arcade" value="3" />   <!-- Left  Stick Horizontal -->
-      <param name="axis_turn_tank"   value="3" />   <!-- Right Stick Horizontal -->
-      <param name="deadman_button"   value="4" />   <!-- LB button -->
-      <param name="scale_linear"     value="0.5" />
-      <param name="scale_angular"    value="1.0" />
-      <param name="control_scheme"   value="$(arg control_scheme)" />
+           Axis 0 = Left  Stick Horizontal  (arcade: turn)
+           Axis 3 = Right Stick Horizontal  (tank: turn)
+           Axis 4 = Right Stick Vertical    (both modes: fwd/back) -->
+      <param name="axis_linear"    value="4" />   <!-- Right Stick Vertical  (fwd/back) -->
+      <param name="axis_angular"   value="0" />   <!-- Left  Stick Horizontal (arcade turn) -->
+      <param name="axis_turn_tank" value="3" />   <!-- Right Stick Horizontal (tank turn) -->
+      <param name="deadman_button" value="4" />   <!-- LB button -->
+      <param name="scale_linear"   value="0.5" />
+      <param name="scale_angular"  value="1.0" />
+      <param name="control_scheme" value="$(arg control_scheme)" />
       <remap from="joy" to="my_joy" />
     </node>
 

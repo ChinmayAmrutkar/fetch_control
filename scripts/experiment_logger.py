@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 experiment_logger.py
 --------------------
@@ -57,12 +58,9 @@ class ExperimentLogger:
         self.log_prefix      = rospy.get_param('~log_prefix',      'TRIAL')
 
         # --- Log directory ---
-        preferred = "/home/fetchuser/chinmay/fetch_teleop_ws/logs/"
-        if os.path.exists(os.path.dirname(preferred)):
-            self.log_dir = preferred
-        else:
-            self.log_dir = os.path.expanduser("~/fetch_control_ws/logs/")
-        os.makedirs(self.log_dir, exist_ok=True)
+        self.log_dir = "/home/fetchuser/chinmay/fetch_control_ws/logs/"
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
 
         ts = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -177,7 +175,7 @@ class ExperimentLogger:
     def goal_callback(self, msg):
         self.goal_reached = msg.data
         if self.goal_reached and self.experiment_active:
-            rospy.loginfo_once("LOGGER: Goal reached — marking logs.")
+            rospy.loginfo_once("LOGGER: Goal reached  -- marking logs.")
 
     def odom_callback(self, msg):
         self.latest_odom_twist = msg.twist.twist
@@ -247,7 +245,7 @@ class ExperimentLogger:
     # ------------------------------------------------------------------ shutdown
 
     def shutdown_hook(self):
-        rospy.loginfo("Logger shutting down — flushing files...")
+        rospy.loginfo("Logger shutting down  -- flushing files...")
         self.experiment_active = False
 
         if hasattr(self, 'timer'):

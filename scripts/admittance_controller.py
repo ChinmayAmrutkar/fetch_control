@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 admittance_controller.py
 ------------------------
@@ -12,7 +13,7 @@ applied "force" and integrates a second-order mass-damper equation:
     velocity    += acceleration * dt
 
 A watchdog timer zeros the target if no command is received within
-`cmd_timeout` seconds — prevents runaway motion if the upstream node dies.
+`cmd_timeout` seconds  -- prevents runaway motion if the upstream node dies.
 
 Parameters
   ~virtual_mass     (float, default 0.5)   Inertia feel (higher = slower accel)
@@ -69,7 +70,7 @@ class AdmittanceController:
                 target     = self.target_vel
                 last_cmd_t = self.last_cmd_time
 
-            # Watchdog — force stop if upstream signal is stale
+            # Watchdog  -- force stop if upstream signal is stale
             if (rospy.Time.now() - last_cmd_t).to_sec() > self.cmd_timeout:
                 target.linear.x  = 0.0
                 target.angular.z = 0.0

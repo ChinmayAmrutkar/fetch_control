@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 safety_controller_twist.py
 --------------------------
-Real-time LIDAR obstacle guard — the final gate before /cmd_vel.
+Real-time LIDAR obstacle guard  -- the final gate before /cmd_vel.
 
 Operates OUTSIDE the delay chain intentionally: the safety check always
 sees the world as it is RIGHT NOW, regardless of command latency.
@@ -15,11 +16,11 @@ Publishes /safety_status (std_msgs/Bool):
   True  = safety stop is ACTIVE (obstacle detected)
   False = path is clear
 
-Parameters  — none (all hard-coded; tune stop_distance here if needed)
+Parameters   -- none (all hard-coded; tune stop_distance here if needed)
 
 Subscribes : /cmd_vel_teleop  (geometry_msgs/Twist)
              /base_scan        (sensor_msgs/LaserScan)
-Publishes  : /cmd_vel         (geometry_msgs/Twist)  — final robot command
+Publishes  : /cmd_vel         (geometry_msgs/Twist)   -- final robot command
              /safety_status   (std_msgs/Bool)
 """
 
@@ -52,7 +53,7 @@ class SafetyControllerTwist:
         ranges[np.isinf(ranges)]  = 10.0
         ranges[ranges < 0.05]     = 10.0
 
-        # Forward arc: centre ±1/6 of the full scan
+        # Forward arc: centre +/-1/6 of the full scan
         mid   = len(ranges) // 2
         width = len(ranges) // 6
         front = ranges[mid - width : mid + width]
@@ -68,7 +69,7 @@ class SafetyControllerTwist:
         if twist_msg.linear.x > 0 and not self.safe_to_move_forward:
             safe_cmd.linear.x  = 0.0
             safe_cmd.angular.z = twist_msg.angular.z  # still allow turning
-            rospy.logwarn_throttle(1, "Safety: blocking forward motion — obstacle within %.2fm",
+            rospy.logwarn_throttle(1, "Safety: blocking forward motion  -- obstacle within %.2fm",
                                    self.stop_distance)
         else:
             safe_cmd = twist_msg

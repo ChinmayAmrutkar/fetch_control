@@ -248,9 +248,7 @@ class FrameCalibrator:
         """
         # 1. Find run_trial.py
         candidates = [
-            os.path.expanduser("~/fetch_control_ws/src/fetch_control/scripts/run_trial.py"),
-            os.path.expanduser("~/chinmay/fetch_control_ws/src/fetch_control/scripts/run_trial.py"),
-            os.path.expanduser("~/fetch_teleop_ws/src/fetch_control/scripts/run_trial.py"),
+            "/home/fetchuser/chinmay/fetch_control_ws/src/fetch_control/scripts/run_trial.py",
         ]
         try:
             import rospkg

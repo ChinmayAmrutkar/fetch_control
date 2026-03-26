@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 cmd_delay.py
 ------------
@@ -31,7 +32,7 @@ class CmdDelay:
         self.sub = rospy.Subscriber('/cmd_vel_raw',     Twist, self.cmd_callback)
         self.pub = rospy.Publisher('/cmd_vel_delayed',  Twist, queue_size=10)
 
-        # Process buffer at 50 Hz — matches admittance controller rate
+        # Process buffer at 50 Hz  -- matches admittance controller rate
         rospy.Timer(rospy.Duration(0.02), self.process_buffer)
 
         rospy.loginfo("CMD Delay node ready | one-way delay=%.3fs", self.delay)
@@ -50,7 +51,7 @@ class CmdDelay:
                 self.buffer.popleft()
                 self.pub.publish(msg)
             else:
-                break   # remaining messages are newer — stop here
+                break   # remaining messages are newer  -- stop here
 
 
 if __name__ == '__main__':
