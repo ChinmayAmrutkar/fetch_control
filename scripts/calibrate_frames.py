@@ -70,9 +70,9 @@ class FrameCalibrator:
         self.amcl_converged = False
 
         # Sample buffers for averaging
-        self.samples         = []    # list of (amcl_dict, mocap_dict) pairs
-        self.collecting      = False
-        self.done            = False
+        self.samples    = []    # list of (amcl_dict, mocap_dict) pairs
+        self.collecting = False
+        self.done       = False
 
         self.lock = threading.Lock()
 
@@ -88,7 +88,10 @@ class FrameCalibrator:
         print("  FRAME CALIBRATOR")
         print("=" * 60)
         print("  Robot body   : {}".format(self.rigid_body_name))
-        print("  Difficulty   : {}".format(self.difficulty if self.difficulty else "(not set - values will be printed only)"))
+        if self.difficulty:
+            print("  Difficulty   : {}".format(self.difficulty))
+        else:
+            print("  Difficulty   : (not set - values will be printed only)")
         print("  Samples      : {}".format(self.n_samples))
         print("  Cov threshold: {:.3f} m^2  (~{:.0f} cm std dev)".format(
               self.cov_threshold, math.sqrt(self.cov_threshold) * 100))
@@ -105,10 +108,10 @@ class FrameCalibrator:
         _, _, theta = euler_from_quaternion([o.x, o.y, o.z, o.w])
 
         # Covariance matrix is row-major 6x6.
-        # Index [0]  = var_x,  index [7]  = var_y
-        cov    = msg.pose.covariance
-        var_x  = cov[0]
-        var_y  = cov[7]
+        # Index [0] = var_x,  index [7] = var_y
+        cov     = msg.pose.covariance
+        var_x   = cov[0]
+        var_y   = cov[7]
         max_var = max(var_x, var_y)
 
         with self.lock:
@@ -117,16 +120,18 @@ class FrameCalibrator:
 
             if not self.amcl_converged:
                 converged = max_var < self.cov_threshold
-                # Print live variance so operator can watch it drop
-                sys.stdout.write("\r  AMCL variance: {:.4f} m^2  (threshold: {:.3f}) {}     ".format(
-                    max_var,
-                    self.cov_threshold,
-                    "-> CONVERGED" if converged else "-> waiting..."
-                ))
+                sys.stdout.write(
+                    "\r  AMCL variance: {:.4f} m^2  (threshold: {:.3f})  {}     ".format(
+                        max_var,
+                        self.cov_threshold,
+                        "-> CONVERGED" if converged else "-> waiting..."
+                    )
+                )
                 sys.stdout.flush()
                 if converged:
                     self.amcl_converged = True
-                    print("\n\n  AMCL has converged. Collecting {} samples...".format(self.n_samples))
+                    print("\n\n  AMCL has converged. Collecting {} samples...".format(
+                          self.n_samples))
                     self.collecting = True
             elif self.collecting and not self.done:
                 self._try_collect_sample()
@@ -141,7 +146,7 @@ class FrameCalibrator:
     # ------------------------------------------------------------------ sampling
 
     def _try_collect_sample(self):
-        """Called inside the AMCL callback (lock already held). Collect one paired sample."""
+        """Called inside AMCL callback (lock already held). Collect one paired sample."""
         if self.mocap_pose is None:
             return
         if self.done:
@@ -174,11 +179,10 @@ class FrameCalibrator:
     def _compute_and_print(self):
         print("\n\n  Computing transform from {} samples...".format(len(self.samples)))
 
-        # Average each field independently
         def mean_field(samples, source, field):
             return sum(s[source][field] for s in samples) / float(len(samples))
 
-        # Circular mean for angles (handles the -pi/pi wraparound correctly)
+        # Circular mean for angles -- handles the -pi/+pi wraparound correctly
         def circular_mean(samples, source, field):
             sin_sum = sum(math.sin(s[source][field]) for s in samples)
             cos_sum = sum(math.cos(s[source][field]) for s in samples)
@@ -194,9 +198,7 @@ class FrameCalibrator:
         mocap_z     = mean_field(self.samples, 1, 'z')
         mocap_theta = circular_mean(self.samples, 1, 'theta')
 
-        # ------------------------------------------------------------------
         # SE(2) transform: world = R(yaw_offset) * map + translation
-        # ------------------------------------------------------------------
         yaw_offset = mocap_theta - amcl_theta
 
         # Rotate the AMCL position vector by yaw_offset, then find shift
@@ -208,9 +210,6 @@ class FrameCalibrator:
         tf_z   = mocap_z - amcl_z
         tf_yaw = yaw_offset
 
-        # ------------------------------------------------------------------
-        # Print results
-        # ------------------------------------------------------------------
         print("\n" + "=" * 60)
         print("  CALIBRATION RESULT  ({} samples averaged)".format(len(self.samples)))
         print("=" * 60)
@@ -223,9 +222,6 @@ class FrameCalibrator:
         print("    {:.4f} {:.4f} {:.4f} {:.4f} 0 0  world map 100".format(
               tf_x, tf_y, tf_z, tf_yaw))
 
-        # ------------------------------------------------------------------
-        # Auto-write into run_trial.py MAP_DATABASE if difficulty was given
-        # ------------------------------------------------------------------
         if self.difficulty in ("TRAIN", "EASY", "MED", "HARD"):
             self._patch_run_trial(tf_x, tf_y, tf_yaw)
         else:
@@ -242,14 +238,20 @@ class FrameCalibrator:
         """
         Find run_trial.py on disk and update the MAP_DATABASE entry for
         self.difficulty with the new tf_x / tf_y / tf_yaw values.
+
+        Matches this exact structure in run_trial.py:
+
+            "EASY": {
+                "yaml":   "lab_map_easy.yaml",
+                "tf_x":   0.0, "tf_y": 0.0, "tf_yaw": 0.0,
+            },
         """
-        # Search common locations
+        # 1. Find run_trial.py
         candidates = [
             os.path.expanduser("~/fetch_control_ws/src/fetch_control/scripts/run_trial.py"),
             os.path.expanduser("~/chinmay/fetch_control_ws/src/fetch_control/scripts/run_trial.py"),
             os.path.expanduser("~/fetch_teleop_ws/src/fetch_control/scripts/run_trial.py"),
         ]
-        # Also search via ROS package path if available
         try:
             import rospkg
             rp = rospkg.RosPack()
@@ -267,41 +269,45 @@ class FrameCalibrator:
         if run_trial_path is None:
             print("")
             print("  WARNING: Could not find run_trial.py to auto-update.")
-            print("  Paste values manually into MAP_DATABASE.")
+            print("  Manually set these lines in MAP_DATABASE for '{}':".format(
+                  self.difficulty))
+            print("      \"tf_x\": {:.4f}, \"tf_y\": {:.4f}, \"tf_yaw\": {:.4f},".format(
+                  tf_x, tf_y, tf_yaw))
             return
 
         with open(run_trial_path, 'r') as f:
             content = f.read()
 
-        # Strategy: find the block for this difficulty tag and replace
-        # tf_x / tf_y / tf_yaw values using regex on the block.
+        # 2. Regex that matches the MAP_DATABASE block for this difficulty.
         #
-        # We look for the section:
-        #   "tag":   "EASY",
-        #   ...
-        #   "tf_x":  <old>,  "tf_y": <old>, "tf_yaw": <old>,
+        #    "EASY": {
+        #        "yaml":   "lab_map_easy.yaml",
+        #        "tf_x":   0.0, "tf_y": 0.0, "tf_yaw": 0.0,
+        #    },
         #
-        # The block ends at the closing brace of that dict entry.
+        # Group 1: from the opening key "EASY": { up to and including the
+        #          tf_x key + colon + spaces.  [^}]* keeps us inside the
+        #          dict block (never crosses a closing brace).
+        # Then match (but do not capture) the old number.
+        # Group 2: literal text between tf_x value and tf_y value.
+        # Group 3: literal text between tf_y value and tf_yaw value.
 
         tag = self.difficulty
+        num = r'[-+]?\d+\.?\d*'
 
-        # Pattern matches the tf_x/tf_y/tf_yaw line(s) inside the block for `tag`
-        # We do a two-pass replace: first locate the tag, then replace the three values.
-
-        # Build pattern that finds the tag block and its tf_ values
-        # This handles both single-line and split-line formats.
         pattern = (
-            r'("tag"\s*:\s*"' + tag + r'".*?)'       # tag line
-            r'("tf_x"\s*:\s*)[-+]?\d+\.?\d*'          # tf_x value
-            r'(\s*,\s*"tf_y"\s*:\s*)[-+]?\d+\.?\d*'   # tf_y value
-            r'(\s*,\s*"tf_yaw"\s*:\s*)[-+]?\d+\.?\d*' # tf_yaw value
+            r'("' + tag + r'"\s*:\s*\{[^}]*?"tf_x"\s*:\s*)'
+            + r'(?:' + num + r')'
+            + r'(\s*,\s*"tf_y"\s*:\s*)'
+            + r'(?:' + num + r')'
+            + r'(\s*,\s*"tf_yaw"\s*:\s*)'
+            + r'(?:' + num + r')'
         )
 
         replacement = (
-            r'\g<1>'
-            + r'\g<2>' + '{:.4f}'.format(tf_x)
-            + r'\g<3>' + '{:.4f}'.format(tf_y)
-            + r'\g<4>' + '{:.4f}'.format(tf_yaw)
+            r'\g<1>' + '{:.4f}'.format(tf_x)
+            + r'\g<2>' + '{:.4f}'.format(tf_y)
+            + r'\g<3>' + '{:.4f}'.format(tf_yaw)
         )
 
         new_content, n_subs = re.subn(pattern, replacement, content, flags=re.DOTALL)
@@ -309,7 +315,9 @@ class FrameCalibrator:
         if n_subs == 0:
             print("")
             print("  WARNING: Could not auto-update run_trial.py (pattern not found).")
-            print("  Please paste the values manually into MAP_DATABASE.")
+            print("  Manually set these lines in MAP_DATABASE for '{}':".format(tag))
+            print("      \"tf_x\": {:.4f}, \"tf_y\": {:.4f}, \"tf_yaw\": {:.4f},".format(
+                  tf_x, tf_y, tf_yaw))
             return
 
         with open(run_trial_path, 'w') as f:
