@@ -58,22 +58,22 @@ MAP_DATABASE = {
     },
     "EASY": {
         "yaml":   "lab_map_easy.yaml",
-        "tf_x":   0.0, "tf_y": 0.0, "tf_yaw": 0.0,
+        "tf_x":   -1.0112, "tf_y": 3.0293, "tf_yaw": -0.3899,
     },
     "MED": {
         "yaml":   "lab_map_med.yaml",
-        "tf_x":   2.5927, "tf_y": 0.3872, "tf_yaw": -2.7971,
+        "tf_x":   0.1288, "tf_y": -3.0163, "tf_yaw": 2.5549,
     },
     "HARD": {
         "yaml":   "lab_map_hard.yaml",
-        "tf_x":   0.0, "tf_y": 0.0, "tf_yaw": 0.0,
+        "tf_x":   4.2685, "tf_y": -0.9319, "tf_yaw": 3.8991,
     },
 }
 
 MAP_DIR = "/home/fetchuser/chinmay/fetch_control_ws/my_maps"
 
 # Available delays for experiment trials
-EXPERIMENT_DELAYS = [0.25, 0.50, 0.75]
+EXPERIMENT_DELAYS = [0.125, 0.25, 0.50, 0.75]
 
 
 # =========================================================
@@ -318,9 +318,9 @@ def main():
 
     while True:
         delay_choice = input_fn("  Select [1/2/3]: ").strip()
-        if delay_choice in ("1", "2", "3"):
+        if delay_choice in ("1", "2", "3", "4"):
             break
-        print("  Please enter 1, 2, or 3.")
+        print("  Please enter 1, 2, 3 or 4")
 
     delay = EXPERIMENT_DELAYS[int(delay_choice) - 1]
 
